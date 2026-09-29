@@ -1,0 +1,41 @@
+import pandas as pd
+# Experimental engineering data
+data = {
+    "Temperature": [40, 45, 50, 55, 60, 65, 70, 75],
+    "Pressure": [20, 22, 25, 27, 30, 32, 35, 38],
+    "Status": ["Normal", "Normal", "Normal", "Normal",
+               "Overheating", "Normal", "Overheating", "Overheating"]
+}
+df = pd.DataFrame(data)
+print("Experimental Data:")
+print(df)
+# -----------------------------
+# 1. Correlation Analysis
+# -----------------------------
+correlation = df["Temperature"].corr(df["Pressure"])
+print("\nCorrelation between Temperature and Pressure:",
+      round(correlation, 2))
+if correlation > 0.7:
+    print("There is a strong positive correlation.")
+elif correlation > 0:
+    print("There is a positive correlation.")
+elif correlation < -0.7:
+    print("There is a strong negative correlation.")
+elif correlation < 0:
+    print("There is a negative correlation.")
+else:
+    print("There is weak or no correlation.")
+# -----------------------------
+# 2. Probability Analysis
+# -----------------------------
+total = len(df)
+overheating = (df["Status"] == "Overheating").sum()
+normal = (df["Status"] == "Normal").sum()
+p_overheating = overheating / total
+p_normal = normal / total
+print("\nProbability Analysis:")
+print("Total observations:", total)
+print("Overheating observations:", overheating)
+print("Normal observations:", normal)
+print("Probability of Overheating:", round(p_overheating, 2))
+print("Probability of Normal Operation:", round(p_normal, 2))
