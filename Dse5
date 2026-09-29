@@ -1,0 +1,119 @@
+Source Code:
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+# Load engineering dataset
+df = pd.read_csv("machine_data_vis.csv")
+# -----------------------------------------
+# 1. Display Dataset
+# -----------------------------------------
+print("ENGINEERING DATASET")
+print(df)
+# -----------------------------------------
+# 2. Basic Dataset Information
+# -----------------------------------------
+print("\nDATASET SHAPE")
+print(df.shape)
+print("\nCOLUMN NAMES")
+print(df.columns)
+print("\nDATA TYPES")
+print(df.dtypes)
+print("\nDATASET INFORMATION")
+df.info()
+# -----------------------------------------
+# 3. Check Missing Values
+# -----------------------------------------
+print("\nMISSING VALUES")
+print(df.isnull().sum())
+# -----------------------------------------
+# 4. Statistical Summary
+# -----------------------------------------
+print("\nSTATISTICAL SUMMARY")
+print(df.describe())
+# -----------------------------------------
+# 5. Individual Statistical Measures
+# -----------------------------------------
+print("\nSTATISTICAL MEASURES")
+print("Mean Temperature:",
+      df["Temperature"].mean())
+print("Median Temperature:",
+      df["Temperature"].median())
+print("Standard Deviation:",
+      df["Temperature"].std())
+print("Minimum Temperature:",
+      df["Temperature"].min())
+print("Maximum Temperature:",
+      df["Temperature"].max())
+print("Temperature Variance:",
+      df["Temperature"].var())
+# -----------------------------------------
+# 6. Statistical Summary of All
+#    Numerical Columns
+# -----------------------------------------
+numeric_columns = [
+    "Temperature",
+    "Pressure",
+    "Vibration",
+    "Operating_Hours"
+]
+print("\nMEAN VALUES")
+print(df[numeric_columns].mean())
+print("\nMEDIAN VALUES")
+print(df[numeric_columns].median())
+print("\nSTANDARD DEVIATION")
+print(df[numeric_columns].std())
+# -----------------------------------------
+# 7. Machine Status Analysis
+# -----------------------------------------
+print("\nMACHINE STATUS COUNT")
+print(df["Status"].value_counts())
+# -----------------------------------------
+# 8. Correlation Analysis
+# -----------------------------------------
+print("\nCORRELATION MATRIX")
+correlation = df[numeric_columns].corr()
+print(correlation)
+# -----------------------------------------
+# 9. Histogram
+# -----------------------------------------
+plt.figure(figsize=(7,5))
+plt.hist(
+    df["Temperature"],
+    bins=5,
+    edgecolor="black"
+)
+plt.xlabel("Temperature")
+plt.ylabel("Number of Machines")
+plt.title("Temperature Distribution")
+plt.show()
+# -----------------------------------------
+# 10. Scatter Plot
+# -----------------------------------------
+plt.figure(figsize=(7,5))
+plt.scatter(
+    df["Temperature"],
+    df["Vibration"]
+)
+plt.xlabel("Temperature")
+plt.ylabel("Vibration")
+plt.title("Temperature vs Vibration")
+plt.show()
+# -----------------------------------------
+# 11. Correlation Heatmap
+# -----------------------------------------
+plt.figure(figsize=(8,6))
+sns.heatmap(
+    correlation,
+    annot=True,
+    cmap="coolwarm",
+    fmt=".2f"
+)
+plt.title("Correlation Heatmap")
+plt.show()
+# -----------------------------------------
+# 12. Detect High Temperature Machines
+# -----------------------------------------
+print("\nHIGH TEMPERATURE MACHINES")
+print(
+    df[df["Temperature"] > 85])
