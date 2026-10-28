@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+#define BUFFER_SIZE 5
+#define NUM_ORDERS 10
+
+int buffer[BUFFER_SIZE];
+int in = 0, out = 0;
+
+sem_t empty;
+sem_t full;
+sem_t mutex;
+
+void *kitchen(void *arg)
+{
+    int order;
+
+    for (order = 1; order <= NUM_ORDERS; order++)
+    {
+        printf("Kitchen preparing Order %d...\n", order);
+        sleep(1);
+
+        if (sem_wait(&empty) != 0)
+        {
+            perror("sem_wait failed");
+            return NULL;
+        }
+
+        if (sem_wait(&mutex) != 0)
+        {
+            perror("sem_wait failed");
+            sem_post(&empty);
+            return NULL;
+        }
+
+        buffer[in] = order;
+        printf("Kitchen placed Order %d on the counter.\n", order);
+
+        in = (in + 1) % BUFFER_SIZE;
+
+        sem_post(&mutex);
+        sem_post(&full);
+    }
+
+    return NULL;
+}
+void *delivery_agent(void *arg)
+{
+    int order;
+
+    for (int i = 1; i <= NUM_ORDERS; i++)
+    {
+        if (sem_wait(&full) != 0)
+        {
+            perror("sem_wait failed");
+            return NULL;
+        }
+
+        if (sem_wait(&mutex) != 0)
+        {
+            perror("sem_wait failed");
+            sem_post(&full);
+            return NULL;
+        }
+
+        order = buffer[out];
+        printf("Delivery agent collected Order %d.\n", order);
+
+        out = (out + 1) % BUFFER_SIZE;
+
+        sem_post(&mutex);
+        sem_post(&empty);
+
+        printf("Order %d is out for delivery.\n", order);
+        sleep(2);
+    }
+
+    return NULL;
+}
+
+int main(void)
+{
+    pthread_t kitchen_thread, delivery_thread;
+
+    if (sem_init(&empty, 0, BUFFER_SIZE) != 0)
+    {
+        perror("Semaphore initialization failed");
+        return 1;
+    }
+
+    if (sem_init(&full, 0, 0) != 0)
+    {
+        perror("Semaphore initialization failed");
+        sem_destroy(&empty);
+        return 1;
+                                                   }
+
+    if (sem_init(&mutex, 0, 1) != 0)
+    {
+        perror("Semaphore initialization failed");
+        sem_destroy(&empty);
+        sem_destroy(&full);
+        return 1;
+    }
+
+    if (pthread_create(&kitchen_thread, NULL, kitchen, NULL) != 0)
+    {
+        perror("Kitchen thread creation failed");
+        sem_destroy(&empty);
+        sem_destroy(&full);
+        sem_destroy(&mutex);
+        return 1;
+    }
+
+    if (pthread_create(&delivery_thread, NULL, delivery_agent, NULL) != 0)
+    {
+        perror("Delivery thread creation failed");
+        pthread_join(kitchen_thread, NULL);
+        sem_destroy(&empty);
+        sem_destroy(&full);
+        sem_destroy(&mutex);
+        return 1;
+    }
+
+    if (pthread_join(kitchen_thread, NULL) != 0)
+    {
+        perror("Kitchen thread join failed");
+    }
+
+    if (pthread_join(delivery_thread, NULL) != 0)
+    {
+        perror("Delivery thread join failed");
+    }
+
+    sem_destroy(&empty);
+    sem_destroy(&full);
+    sem_destroy(&mutex);
+
+    return 0;
+}
