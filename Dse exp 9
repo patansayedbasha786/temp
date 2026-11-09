@@ -1,0 +1,62 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+# Step 1: Load Dataset
+df = pd.read_csv("Dataset.csv")
+print("Engineering Dataset:\n", df)
+# Step 2: Data Cleaning
+df = df.drop_duplicates()
+df = df.dropna(subset=["Status"])
+# Step 3: Data Visualization
+sns.countplot(data=df, x="Status")
+plt.title("Machine Status Distribution")
+plt.show()
+# Step 4: Select Features and Target
+X = df[["Temperature", "Pressure", "Vibration", "Operating_Hours"]]
+y = df["Status"]
+# Step 5: Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+# Step 6: Build and Train Model
+model = Pipeline([
+    ("imputer", SimpleImputer(strategy="mean")),
+    ("scaler", StandardScaler()),
+    ("classifier", LogisticRegression(max_iter=1000))
+])
+model.fit(X_train, y_train)
+# Step 7: Predict and Evaluate
+y_pred = model.predict(X_test)
+print("\nActual Status:", y_test.values)
+print("Predicted Status:", y_pred)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(
+    y_test, y_pred, zero_division=0
+))
+# Step 8: Confusion Matrix
+sns.heatmap(confusion_matrix(y_test, y_pred),
+            annot=True, fmt="d", cmap="Blues")
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted Status")
+plt.ylabel("Actual Status")
+plt.show()
+# Step 9: Predict New Machine Status
+new_machine = pd.DataFrame({
+    "Temperature": [90.0],
+    "Pressure": [109.0],
+    "Vibration": [5.0],
+    "Operating_Hours": [1750]
+})
+print("\nNew Machine Status:", model.predict(new_machine)[0])
+# Step 10: Save Results
+pd.DataFrame({
+    "Actual": y_test.values,
+    "Predicted": y_pred
+}).to_csv("prediction_results.csv", index=False)
+print("\nResults saved successfully!")
