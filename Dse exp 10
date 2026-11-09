@@ -1,0 +1,56 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+# Step 1: Load dataset
+df = pd.read_csv("Dataset.csv")
+print("Original Dataset:")
+print(df)
+# Step 2: Check data quality
+print("\nMissing Values:")
+print(df.isnull().sum())
+print("\nDuplicate Records:", df.duplicated().sum())
+# Step 3: Check for invalid sensor values
+print("\nInvalid Temperature Values:")
+print(df[df["Temperature"] < 0])
+print("\nInvalid Pressure Values:")
+print(df[df["Pressure"] < 0])
+print("\nInvalid Vibration Values:")
+print(df[df["Vibration"] < 0])
+# Step 4: Remove duplicate records
+df = df.drop_duplicates()
+# Step 5: Handle missing values
+numeric_columns = [
+    "Temperature",
+    "Pressure",
+    "Vibration",
+    "Operating_Hours"
+]
+df[numeric_columns] = df[numeric_columns].fillna(
+    df[numeric_columns].mean()
+)
+# Step 6: Protect sensitive information
+# Remove personal/sensitive columns if present
+sensitive_columns = ["Name", "Phone", "Email", "Address"]
+df = df.drop(
+    columns=[c for c in sensitive_columns if c in df.columns],
+    errors="ignore"
+)
+# Step 7: Check class distribution
+print("\nMachine Status Distribution:")
+print(df["Status"].value_counts())
+# Step 8: Responsible data analysis
+print("\nResponsible Data Usage Report")
+print("--------------------------------")
+print("1. Data quality checked")
+print("2. Duplicate records removed")
+print("3. Missing numerical values handled")
+print("4. Invalid sensor values checked")
+print("5. Sensitive information removed if present")
+print("6. Machine status distribution examined")
+print("7. Data should be used only for the intended purpose")
+# Step 9: Visualize data
+df["Status"].value_counts().plot(kind="bar")
+plt.title("Machine Status Distribution")
+plt.xlabel("Machine Status")
+plt.ylabel("Number of Machines")
+plt.show()
+print("\nEthical analysis completed successfully!")
