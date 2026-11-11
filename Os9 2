@@ -1,0 +1,39 @@
+include <stdio.h>
+int main()
+{
+int n, i, j, indexBlock, blocks;
+char fname[20];
+ 
+printf("Enter number of files: ");
+scanf("%d", &n);
+ 
+for(i=0; i<n; i++)
+{
+printf("\nEnter file name: ");
+scanf("%s", fname);
+ 
+printf("Enter index block: ");
+scanf("%d", &indexBlock);
+ 
+printf("Enter number of allocated blocks: ");
+scanf("%d", &blocks);
+ 
+int b[blocks];
+ 
+printf("Enter block numbers:\n");
+ 
+for(j=0; j<blocks; j++)
+scanf("%d", &b[j]);
+ 
+printf("\nFile Name : %s\n", fname);
+printf("Index Block : %d\n", indexBlock);
+printf("Allocated Blocks : ");
+ 
+for(j=0; j<blocks; j++)
+printf("%d ", b[j]);
+ 
+printf("\nStatus : Allocated\n");
+}
+ 
+return 0;
+}
