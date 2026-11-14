@@ -1,0 +1,36 @@
+def tsp(city,count,currCost):
+    global minCost,bestPath
+    if count==n:
+        if cost[city][0]!=0:
+            totalCost=currCost+cost[city][0]
+            if totalCost<minCost:
+                minCost=totalCost
+                bestPath=path[:]+[0]
+        return
+    for i in range(n):
+        if not visited[i] and cost[city][i]!=0:
+            newCost=currCost+cost[city][i]
+            if newCost>=minCost:
+                continue
+            visited[i]=True
+            path[count]=i
+            tsp(i,count+1,newCost)
+            visited[i]=False
+n=int(input("Enter number of hospitals:"))
+cost=[]
+print("Enter the distance matrix:")
+for i in range(n):
+    cost.append(list(map(int,input().split())))
+minCost=float('inf')
+bestPath=[]
+visited=[False]*n
+path=[0]*n
+visited[0]=True
+tsp(0,1,0)
+if minCost==float('inf'):
+    print("No valid tour exists")
+else:
+    print("Minimum Travel Distance:",minCost)
+    print("Shortest Route:",end=" ")
+    for city in bestPath:
+        print(city+1,end=" ")
